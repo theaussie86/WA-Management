@@ -29,7 +29,7 @@ export default function RootLayout({
     // Alle Service Worker löschen
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        for (let registration of registrations) {
+        for (const registration of registrations) {
           registration.unregister();
         }
       });
@@ -38,7 +38,7 @@ export default function RootLayout({
     // Cache löschen
     if ("caches" in window) {
       caches.keys().then(function (names) {
-        for (let name of names) {
+        for (const name of names) {
           caches.delete(name);
         }
       });
