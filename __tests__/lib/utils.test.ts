@@ -1,4 +1,4 @@
-import { cn, hasEnvVars } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 describe("utils", () => {
   describe("cn", () => {

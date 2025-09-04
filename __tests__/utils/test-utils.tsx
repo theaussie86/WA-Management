@@ -35,7 +35,7 @@ export const createMockUser = (overrides = {}) => ({
   ...overrides,
 });
 
-export const createMockSupabaseResponse = (data: any, error = null) => ({
+export const createMockSupabaseResponse = (data: unknown, error = null) => ({
   data,
   error,
   status: error ? 400 : 200,

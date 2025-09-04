@@ -88,7 +88,7 @@ describe("useIsMobile", () => {
   });
 
   it("updates when media query changes", () => {
-    let changeCallback: (event: any) => void;
+    let changeCallback: (event: MediaQueryListEvent) => void;
 
     mockAddEventListener.mockImplementation((event, callback) => {
       if (event === "change") {
