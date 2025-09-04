@@ -12,14 +12,14 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 export default function UsersPage() {
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-        <div className="flex items-center gap-2 px-4">
+      <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 max-w-full overflow-x-hidden">
+        <div className="flex items-center gap-2 px-4 min-w-0 flex-1">
           <SidebarTrigger className="-ml-1" />
           <Separator
             orientation="vertical"
             className="mr-2 data-[orientation=vertical]:h-4"
           />
-          <Breadcrumb>
+          <Breadcrumb className="min-w-0 flex-1">
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
@@ -32,7 +32,7 @@ export default function UsersPage() {
           </Breadcrumb>
         </div>
       </header>
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0 max-w-full overflow-x-hidden">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Benutzer</h1>
         </div>
@@ -46,5 +46,3 @@ export default function UsersPage() {
     </>
   );
 }
-
-
