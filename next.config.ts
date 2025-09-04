@@ -1,15 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Turbopack Konfiguration (neue Syntax)
-  turbopack: {
-    rules: {
-      "*.svg": {
-        loaders: ["@svgr/webpack"],
-        as: "*.js",
+  // Turbopack Konfiguration (nur für Development)
+  ...(process.env.NODE_ENV === "development" && {
+    turbopack: {
+      rules: {
+        "*.svg": {
+          loaders: ["@svgr/webpack"],
+          as: "*.js",
+        },
       },
     },
-  },
+  }),
   // TypeScript Konfiguration
   typescript: {
     // TypeScript Fehler nicht als Build-Fehler behandeln
@@ -20,16 +22,17 @@ const nextConfig: NextConfig = {
     // ESLint Fehler nicht als Build-Fehler behandeln
     ignoreDuringBuilds: false,
   },
-  // Output Konfiguration
-  output: "standalone",
-  // Explizit das Output File Tracing Root setzen
-  outputFileTracingRoot: __dirname,
+  // Output Konfiguration - für Vercel entfernt
+  // output: "standalone", // Entfernt für Vercel Kompatibilität
+  // outputFileTracingRoot: __dirname, // Entfernt für Vercel Kompatibilität
   // Trailing Slash Konfiguration
   trailingSlash: false,
   // Images Konfiguration
   images: {
     unoptimized: false,
   },
+  // Server External Packages für bessere Vercel Kompatibilität
+  serverExternalPackages: [],
 };
 
 export default nextConfig;

@@ -7,10 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:ci": "jest --ci --coverage --watchAll=false"
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "type-check": "tsc --noEmit",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
