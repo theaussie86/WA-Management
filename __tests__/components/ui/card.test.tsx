@@ -17,15 +17,7 @@ describe("Card Components", () => {
     expect(card).toBeInTheDocument();
     expect(card).toHaveAttribute("data-slot", "card");
     expect(card).toHaveClass(
-      "bg-card",
-      "text-card-foreground",
-      "flex",
-      "flex-col",
-      "gap-6",
-      "rounded-xl",
-      "border",
-      "py-6",
-      "shadow-sm"
+      "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
     );
   });
 
@@ -43,7 +35,7 @@ describe("Card Components", () => {
     const title = screen.getByTestId("card-title");
     expect(title).toBeInTheDocument();
     expect(title).toHaveAttribute("data-slot", "card-title");
-    expect(title).toHaveClass("leading-none", "font-semibold");
+    expect(title).toHaveClass("leading-none font-semibold");
   });
 
   it("renders CardDescription with correct attributes", () => {
@@ -56,7 +48,7 @@ describe("Card Components", () => {
     const description = screen.getByTestId("card-description");
     expect(description).toBeInTheDocument();
     expect(description).toHaveAttribute("data-slot", "card-description");
-    expect(description).toHaveClass("text-muted-foreground", "text-sm");
+    expect(description).toHaveClass("text-muted-foreground text-sm");
   });
 
   it("renders CardContent with correct attributes", () => {
@@ -74,7 +66,7 @@ describe("Card Components", () => {
     const footer = screen.getByTestId("card-footer");
     expect(footer).toBeInTheDocument();
     expect(footer).toHaveAttribute("data-slot", "card-footer");
-    expect(footer).toHaveClass("flex", "items-center", "px-6");
+    expect(footer).toHaveClass("flex items-center px-6");
   });
 
   it("renders CardAction with correct attributes", () => {
@@ -84,11 +76,7 @@ describe("Card Components", () => {
     expect(action).toBeInTheDocument();
     expect(action).toHaveAttribute("data-slot", "card-action");
     expect(action).toHaveClass(
-      "col-start-2",
-      "row-span-2",
-      "row-start-1",
-      "self-start",
-      "justify-self-end"
+      "col-start-2 row-span-2 row-start-1 self-start justify-self-end"
     );
   });
 

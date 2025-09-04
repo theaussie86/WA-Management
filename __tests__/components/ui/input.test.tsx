@@ -8,14 +8,7 @@ describe("Input Component", () => {
     const input = screen.getByTestId("input");
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute("placeholder", "Enter text");
-    expect(input).toHaveClass(
-      "flex",
-      "h-9",
-      "w-full",
-      "rounded-md",
-      "border",
-      "border-input"
-    );
+    expect(input).toHaveClass("flex h-9 w-full rounded-md border border-input");
   });
 
   it("forwards ref correctly", () => {
@@ -45,8 +38,7 @@ describe("Input Component", () => {
     const input = screen.getByTestId("disabled-input");
     expect(input).toBeDisabled();
     expect(input).toHaveClass(
-      "disabled:cursor-not-allowed",
-      "disabled:opacity-50"
+      "disabled:cursor-not-allowed disabled:opacity-50"
     );
   });
 
