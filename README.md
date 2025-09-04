@@ -1,105 +1,162 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# WA Management App
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Eine Next.js 15 App mit Supabase Backend für das Weissteiner Automation (WA) Management System.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## Tech Stack
 
-## Features
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui Komponenten
+- **Backend**: Supabase (Auth, Database, Real-time)
+- **Testing**: Jest, React Testing Library
+- **CI/CD**: GitHub Actions
+- **Deployment**: Vercel (geplant)
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## Entwicklung
 
-## Demo
+### Voraussetzungen
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- Node.js 20+
+- npm
+- Supabase Account
 
-## Deploy to Vercel
+### Installation
 
-Vercel deployment will guide you through creating a Supabase account and project.
+```bash
+# Dependencies installieren
+npm install
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+# Environment Variables konfigurieren
+cp .env.example .env.local
+# Bearbeite .env.local mit deinen Supabase Credentials
+```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### Entwicklungsserver starten
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+```bash
+npm run dev
+```
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+Die App ist dann unter [http://localhost:3000](http://localhost:3000) verfügbar.
 
-## Clone and run locally
+## Testing
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+### Tests ausführen
 
-2. Create a Next.js app using the Supabase Starter template npx command
+```bash
+# Alle Tests ausführen
+npm test
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+# Tests im Watch-Modus
+npm run test:watch
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+# Tests mit Coverage Report
+npm run test:coverage
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+# Tests für CI/CD
+npm run test:ci
+```
 
-3. Use `cd` to change into the app's directory
+### Test Coverage
 
-   ```bash
-   cd with-supabase-app
-   ```
+Die App hat eine Test Coverage von mindestens 70% für:
 
-4. Rename `.env.example` to `.env.local` and update the following:
+- Branches
+- Functions
+- Lines
+- Statements
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+### Test-Struktur
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+```
+__tests__/
+├── components/          # Komponenten-Tests
+├── hooks/              # Hook-Tests
+├── lib/                # Utility-Tests
+└── utils/              # Test-Utilities
+```
 
-5. You can now run the Next.js local development server:
+## CI/CD Pipeline
 
-   ```bash
-   npm run dev
-   ```
+Die GitHub Actions Pipeline führt folgende Schritte aus:
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+1. **Linting & Code Quality**
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+   - ESLint
+   - TypeScript Check
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+2. **Testing**
 
-## Feedback and issues
+   - Unit Tests
+   - Coverage Report
+   - Upload zu Codecov
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+3. **Build Test**
 
-## More Supabase examples
+   - Production Build
+   - Artifact Upload
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+4. **Security Audit**
+
+   - npm audit
+   - Snyk Vulnerability Scan
+
+5. **Deployment** (nur main branch)
+   - Deploy zu Vercel
+   - Lighthouse Performance Test
+
+## Environment Variables
+
+Erstelle eine `.env.local` Datei mit folgenden Variablen:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY=your_supabase_anon_key
+```
+
+## Deployment
+
+### Vercel (Empfohlen)
+
+1. Verbinde dein GitHub Repository mit Vercel
+2. Konfiguriere die Environment Variables in Vercel
+3. Die App wird automatisch bei jedem Push auf `main` deployed
+
+### GitHub Secrets
+
+Für die CI/CD Pipeline benötigst du folgende Secrets:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY`
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+- `CODECOV_TOKEN` (optional)
+- `SNYK_TOKEN` (optional)
+
+## Projektstruktur
+
+```
+app/                    # Next.js App Router
+├── (protected)/       # Geschützte Routen
+├── auth/             # Authentifizierung
+components/           # Wiederverwendbare Komponenten
+├── ui/              # shadcn/ui Komponenten
+├── tutorial/        # Tutorial-spezifische Komponenten
+lib/                 # Utility-Funktionen
+├── supabase/        # Supabase Konfiguration
+hooks/               # Custom React Hooks
+__tests__/           # Test-Dateien
+.github/             # GitHub Actions Workflows
+```
+
+## Contributing
+
+1. Erstelle einen Feature Branch
+2. Implementiere deine Änderungen
+3. Schreibe Tests für neue Features
+4. Stelle sicher, dass alle Tests bestehen
+5. Erstelle einen Pull Request
+
+## Lizenz
+
+Private Projekt - Weissteiner Automation
