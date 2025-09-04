@@ -23,7 +23,7 @@ describe("LoginForm", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset the mock implementation
-    const { createClient } = require("@/lib/supabase/client");
+    const { createClient } = jest.requireMock("@/lib/supabase/client");
     createClient.mockImplementation(() => ({
       auth: mockSupabaseAuth,
     }));
