@@ -104,7 +104,10 @@ describe("useIsMobile", () => {
     // Simulate window resize to mobile
     act(() => {
       window.innerWidth = 500;
-      changeCallback({ matches: true });
+      changeCallback({
+        matches: true,
+        media: "(max-width: 768px)",
+      } as unknown as MediaQueryListEvent);
     });
 
     expect(result.current).toBe(true);
