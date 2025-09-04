@@ -47,6 +47,14 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
+  // Redirect logged in users away from public pages
+  if (user && request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  // Redirect non-logged in users to login page for protected routes
   if (
     request.nextUrl.pathname !== "/" &&
     !user &&
