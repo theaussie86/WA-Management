@@ -1,0 +1,35 @@
+---
+description: Supabase Integration Guidelines für Auth, Database und Real-time
+globs: ["lib/supabase/**/*", "**/auth/**/*", "**/api/**/*"]
+alwaysApply: false
+---
+
+# Supabase Integration
+
+## Authentifizierung
+
+- Nutze Supabase Auth für Login/Signup
+- Implementiere proper Session Management
+- Verwende Middleware für Route Protection
+- Handle Auth States korrekt (loading, error, success)
+
+## Database
+
+- Definiere klare Schema-Strukturen
+- Nutze Row Level Security (RLS) Policies
+- Implementiere proper Error Handling
+- Verwende TypeScript Types für Database Schema
+
+## Real-time
+
+- Nutze Supabase Realtime für Live-Updates
+- Implementiere proper Subscription Management
+- Handle Connection States
+
+## Environment Variables
+
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```

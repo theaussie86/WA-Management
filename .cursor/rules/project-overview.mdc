@@ -1,0 +1,25 @@
+---
+description: WA Management App - Projektübersicht und Tech Stack
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# WA Management App - Projektübersicht
+
+Dies ist eine Next.js 15 App mit Supabase Backend für ein Weissteiner Automation (WA) Management System.
+
+## Tech Stack
+
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui Komponenten
+- **Backend**: Supabase (Auth, Database, Real-time)
+- **Deployment**: Vercel (geplant)
+- **Package Manager**: npm
+
+## Wichtige Hinweise
+
+- **Immer auf Deutsch antworten** - alle Kommentare, Dokumentation und Kommunikation auf Deutsch
+- Teste alle Änderungen lokal vor Commits
+- Nutze TypeScript strict Mode
+- Implementiere proper Error Boundaries
+- Folge den bestehenden Patterns im Codebase

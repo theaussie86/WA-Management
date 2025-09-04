@@ -1,0 +1,45 @@
+---
+description: WA Management spezifische Business Logic und Features
+globs: ["app/**/*", "components/**/*"]
+alwaysApply: false
+---
+
+# Weissteiner Automation (WA) Management spezifische Regeln
+
+## Business Logic
+
+- Implementiere WhatsApp API Integration
+- Handle Message States korrekt
+- Implementiere Contact Management
+- Nutze proper Data Validation für WA-spezifische Daten
+
+## User Experience
+
+- Implementiere intuitive Navigation
+- Nutze Loading States für API Calls
+- Implementiere proper Error Messages
+- Erstelle responsive Design für Mobile/Desktop
+
+## Dateistruktur
+
+```
+app/                    # Next.js App Router
+├── (protected)/       # Geschützte Routen
+├── auth/             # Authentifizierung
+components/           # Wiederverwendbare Komponenten
+├── ui/              # shadcn/ui Komponenten
+├── tutorial/        # Tutorial-spezifische Komponenten
+lib/                 # Utility-Funktionen
+├── supabase/        # Supabase Konfiguration
+hooks/               # Custom React Hooks
+```
+
+## Sicherheit
+
+- Implementiere proper Session Validation
+- Nutze HTTPS in Production
+- Handle Sensitive Data korrekt
+- Implementiere Rate Limiting
+- Nutze Supabase RLS Policies
+- Validiere Input Data
+- Sanitize User Input
