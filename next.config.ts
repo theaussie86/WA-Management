@@ -33,6 +33,22 @@ const nextConfig: NextConfig = {
   },
   // Server External Packages für bessere Vercel Kompatibilität
   serverExternalPackages: [],
+  // Redirects Konfiguration
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/dashboard",
+        permanent: false, // 307 redirect (temporary)
+        has: [
+          {
+            type: "cookie",
+            key: "sb-access-token", // Supabase Auth Cookie
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

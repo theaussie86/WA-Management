@@ -1,21 +1,6 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm ci",
-  "devCommand": "npm run dev",
   "regions": ["fra1"],
-  "functions": {
-    "app/**/*.tsx": {
-      "runtime": "nodejs20.x"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
