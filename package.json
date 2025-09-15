@@ -19,7 +19,7 @@
     "test:hooks": "jest --config=jest.config.hooks.js --testPathPatterns=\"__tests__/hooks\" --coverage",
     "test:critical": "npm run test:lib && npm run test:hooks",
     "test:components": "npm run test:ui-components && npm run test:custom-components",
-    "test:integration": "jest --testPathPatterns=\"__tests__/integration\" --coverage",
+    "test:integration": "jest --config=jest.config.integration.js --testPathPatterns=\"__tests__/integration\" --coverage",
     "test:performance": "jest --testPathPatterns=\"__tests__/integration.*performance\" --testTimeout=60000",
     "test:smoke": "jest --testPathPatterns=\"__tests__/smoke\" --testEnvironment=node",
     "type-check": "tsc --noEmit",
