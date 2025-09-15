@@ -7,6 +7,7 @@
 The backend leverages Next.js API Routes deployed as Vercel serverless functions, optimized for the content automation workflow requirements:
 
 #### Function Organization
+
 ```
 app/api/
 ├── campaigns/
@@ -25,14 +26,8 @@ app/api/
 │   │       └── route.ts         # GET /api/content/[id]/versions
 │   └── batch/
 │       └── route.ts             # POST /api/content/batch (bulk operations)
-├── webhooks/
-│   └── n8n/
-│       ├── content-generated/
-│       │   └── route.ts         # POST /api/webhooks/n8n/content-generated
-│       ├── workflow-failed/
-│       │   └── route.ts         # POST /api/webhooks/n8n/workflow-failed
-│       └── performance-updated/
-│           └── route.ts         # POST /api/webhooks/n8n/performance-updated
+# Note: n8n workflows are developed externally and access Supabase database directly
+# No webhook endpoints needed for n8n integration
 ├── linkedin/
 │   ├── auth/
 │   │   └── route.ts             # LinkedIn OAuth callback
@@ -50,6 +45,7 @@ app/api/
 ## Authentication and Authorization
 
 ### Auth Flow
+
 ```mermaid
 sequenceDiagram
     participant User

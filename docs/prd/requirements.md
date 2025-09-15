@@ -2,7 +2,7 @@
 
 ## Functional Requirements
 
-**FR1:** The system shall automatically research LinkedIn trends and industry topics via n8n workflows and store results in Supabase for human review and selection.
+**FR1:** The system shall automatically research LinkedIn trends and industry topics via externally developed n8n workflows that access the Supabase database directly for human review and selection.
 
 **FR2:** The system shall provide AI-generated content ideas based on campaign context, trending topics, and user's automation industry expertise.
 
@@ -34,7 +34,7 @@
 
 **NFR5:** The human-in-the-loop interfaces must provide intuitive approval/rejection workflows that integrate seamlessly with the shadcn/ui design system.
 
-**NFR6:** n8n workflow integrations must include proper error handling and retry mechanisms to ensure reliable background automation.
+**NFR6:** Externally developed n8n workflows must include proper error handling and retry mechanisms to ensure reliable background automation.
 
 ## Compatibility Requirements
 

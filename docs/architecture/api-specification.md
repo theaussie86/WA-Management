@@ -9,7 +9,7 @@ openapi: 3.0.0
 info:
   title: WA Management LinkedIn Content Automation API
   version: 1.0.0
-  description: RESTful API for AI-powered LinkedIn content pipeline management with n8n webhook integration
+  description: RESTful API for AI-powered LinkedIn content pipeline management with external n8n database integration
 servers:
   - url: https://your-app.vercel.app/api
     description: Production API server
@@ -18,14 +18,14 @@ paths:
     get:
       summary: List user campaigns
       responses:
-        '200':
+        "200":
           description: List of campaigns
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Campaign'
+                  $ref: "#/components/schemas/Campaign"
     post:
       summary: Create new campaign
       requestBody:
@@ -33,9 +33,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCampaignRequest'
+              $ref: "#/components/schemas/CreateCampaignRequest"
       responses:
-        '201':
+        "201":
           description: Campaign created successfully
 
   /campaigns/{campaignId}/content:
@@ -53,7 +53,7 @@ paths:
             type: string
             enum: [research, ideation, drafting, creative, queued, published]
       responses:
-        '200':
+        "200":
           description: Content items for campaign
 
   /content/{contentId}/approve:
@@ -76,7 +76,7 @@ paths:
                 editor_notes:
                   type: string
       responses:
-        '200':
+        "200":
           description: Content approved successfully
 
   /webhooks/n8n/content-generated:
@@ -100,7 +100,7 @@ paths:
                 ai_metadata:
                   type: object
       responses:
-        '200':
+        "200":
           description: Webhook processed successfully
 
   /linkedin/publish:
@@ -119,7 +119,7 @@ paths:
                   type: string
                   format: date-time
       responses:
-        '200':
+        "200":
           description: Content published successfully
 
 components:

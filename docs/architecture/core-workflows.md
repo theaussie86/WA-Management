@@ -10,7 +10,7 @@ sequenceDiagram
     participant Dashboard as Real-time Dashboard
     participant ContentAPI as Content Pipeline Service
     participant DB as Supabase Database
-    participant n8n as n8n Workflows
+    participant n8n as n8n Workflows (External)
 
     User->>Dashboard: Open daily review
     Dashboard->>ContentAPI: GET /campaigns/{id}/content?stage=pending
@@ -20,12 +20,10 @@ sequenceDiagram
     User->>Dashboard: Approve trending topic
     Dashboard->>ContentAPI: POST /content/{id}/approve
     ContentAPI->>DB: Update content status to approved
-    ContentAPI->>n8n: Trigger ideation workflow
-
+    n8n->>DB: Query approved content for ideation
     n8n->>AI Services: Generate content ideas
     AI Services-->>n8n: Return generated ideas
-    n8n->>ContentAPI: POST /webhooks/n8n/content-generated
-    ContentAPI->>DB: Create new content version
+    n8n->>DB: Create new content version directly
     DB-->>Dashboard: Real-time update (new ideas available)
 
     Dashboard->>User: Notification: New ideas ready for review
@@ -72,9 +70,7 @@ sequenceDiagram
     n8n->>AI Services: Generate content request
     AI Services-->>n8n: Rate limit error (429)
 
-    n8n->>WebhookLayer: POST /webhooks/n8n/workflow-failed
-    WebhookLayer->>ContentAPI: Process failure with retry strategy
-    ContentAPI->>DB: Update content status to 'processing_failed'
+    n8n->>DB: Update content status to 'processing_failed'
     DB-->>Dashboard: Real-time update
     Dashboard->>User: Show "AI service temporarily unavailable"
 
@@ -82,9 +78,7 @@ sequenceDiagram
 
     n8n->>AI Services: Retry content generation
     AI Services-->>n8n: Success response
-    n8n->>WebhookLayer: POST /webhooks/n8n/content-generated
-    WebhookLayer->>ContentAPI: Process successful generation
-    ContentAPI->>DB: Create new content version
+    n8n->>DB: Create new content version directly
     DB-->>Dashboard: Real-time update
     Dashboard->>User: Show "New content ready for review"
 ```
