@@ -118,10 +118,7 @@ describe("Supabase Test Infrastructure", () => {
   describe("Database Schema Validation", () => {
     it("should have campaigns table", async () => {
       const client = createTestClient();
-      const { data, error } = await client
-        .from("campaigns")
-        .select("count")
-        .limit(1);
+      const { error } = await client.from("campaigns").select("count").limit(1);
 
       // Should not error even if table is empty
       expect(error).toBeNull();
@@ -129,7 +126,7 @@ describe("Supabase Test Infrastructure", () => {
 
     it("should have content_items table", async () => {
       const client = createTestClient();
-      const { data, error } = await client
+      const { error } = await client
         .from("content_items")
         .select("count")
         .limit(1);
@@ -139,7 +136,7 @@ describe("Supabase Test Infrastructure", () => {
 
     it("should have content_versions table", async () => {
       const client = createTestClient();
-      const { data, error } = await client
+      const { error } = await client
         .from("content_versions")
         .select("count")
         .limit(1);
@@ -149,7 +146,7 @@ describe("Supabase Test Infrastructure", () => {
 
     it("should have workflow_executions table", async () => {
       const client = createTestClient();
-      const { data, error } = await client
+      const { error } = await client
         .from("workflow_executions")
         .select("count")
         .limit(1);
@@ -159,7 +156,7 @@ describe("Supabase Test Infrastructure", () => {
 
     it("should have content_performance table", async () => {
       const client = createTestClient();
-      const { data, error } = await client
+      const { error } = await client
         .from("content_performance")
         .select("count")
         .limit(1);
@@ -169,7 +166,7 @@ describe("Supabase Test Infrastructure", () => {
 
     it("should have user_preferences table", async () => {
       const client = createTestClient();
-      const { data, error } = await client
+      const { error } = await client
         .from("user_preferences")
         .select("count")
         .limit(1);

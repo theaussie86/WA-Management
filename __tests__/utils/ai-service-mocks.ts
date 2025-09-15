@@ -101,7 +101,7 @@ export class AIServiceMocks {
     const { prompt, tone, target_audience } = request;
 
     // Simuliere verschiedene Content-Typen basierend auf Prompt
-    const contentTemplates = this.getContentTemplates(tone, target_audience);
+    const contentTemplates = this.getContentTemplates(tone);
     const template =
       contentTemplates[Math.floor(Math.random() * contentTemplates.length)];
 
@@ -257,7 +257,10 @@ export class AIServiceMocks {
   /**
    * Validiert Mock Request
    */
-  static validateRequest(request: any): { isValid: boolean; errors: string[] } {
+  static validateRequest(request: MockContentGenerationRequest): {
+    isValid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (!request.prompt || typeof request.prompt !== "string") {
@@ -297,7 +300,7 @@ export class AIServiceMocks {
 
   // Private Helper Methods
 
-  private static getContentTemplates(tone: string, targetAudience: string) {
+  private static getContentTemplates(tone: string) {
     const templates = {
       professional: [
         {
@@ -343,7 +346,12 @@ export class AIServiceMocks {
   }
 
   private static generateContentFromTemplate(
-    template: any,
+    template: {
+      title: string;
+      body: string;
+      hashtags: string[];
+      call_to_action: string;
+    },
     prompt: string,
     tone: string,
     targetAudience: string
@@ -410,7 +418,7 @@ export class AIServiceMocks {
  */
 export class MockAIService {
   private static instance: MockAIService;
-  private responses: Map<string, any> = new Map();
+  private responses: Map<string, unknown> = new Map();
   private errorRate: number = 0; // 0-1, Wahrscheinlichkeit für Fehler
   private latency: { min: number; max: number } = { min: 100, max: 500 };
 
@@ -448,7 +456,9 @@ export class MockAIService {
     if (Math.random() < this.errorRate) {
       // Bei hoher Fehlerrate (1.0) simuliere rate_limit, sonst server_error
       const errorType = this.errorRate >= 1.0 ? "rate_limit" : "server_error";
-      return AIServiceMocks.createErrorResponse(errorType) as any;
+      return AIServiceMocks.createErrorResponse(
+        errorType
+      ) as MockContentGenerationResponse;
     }
 
     return AIServiceMocks.createContentGenerationResponse(request);
@@ -486,7 +496,7 @@ export class MockAIService {
   /**
    * Setzt Mock-Response für bestimmten Request
    */
-  setMockResponse(key: string, response: any) {
+  setMockResponse(key: string, response: unknown) {
     this.responses.set(key, response);
   }
 

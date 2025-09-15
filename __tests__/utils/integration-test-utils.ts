@@ -90,7 +90,7 @@ export class IntegrationTestUtils {
    */
   async testContentGenerationPipeline(campaignId: string): Promise<{
     success: boolean;
-    results: any[];
+    results: unknown[];
     errors: string[];
   }> {
     const results: unknown[] = [];
@@ -173,7 +173,7 @@ export class IntegrationTestUtils {
    */
   async testTrendResearchPipeline(): Promise<{
     success: boolean;
-    results: any[];
+    results: unknown[];
     errors: string[];
   }> {
     const results: unknown[] = [];
@@ -213,7 +213,7 @@ export class IntegrationTestUtils {
    */
   async testImageGenerationPipeline(contentItemId: string): Promise<{
     success: boolean;
-    results: any[];
+    results: unknown[];
     errors: string[];
   }> {
     const results: unknown[] = [];
@@ -256,7 +256,7 @@ export class IntegrationTestUtils {
    */
   async testAPIIntegration(): Promise<{
     success: boolean;
-    results: any[];
+    results: unknown[];
     errors: string[];
   }> {
     const results: unknown[] = [];

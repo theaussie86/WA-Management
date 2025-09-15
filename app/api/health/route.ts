@@ -7,10 +7,7 @@ export async function GET() {
 
     // Check database connection
     const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("campaigns")
-      .select("count")
-      .limit(1);
+    const { error } = await supabase.from("campaigns").select("count").limit(1);
 
     const dbStatus = error ? "unhealthy" : "healthy";
     const responseTime = Date.now() - startTime;

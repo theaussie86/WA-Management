@@ -7,7 +7,7 @@ export class ApiTestUtils {
       method?: string;
       url?: string;
       headers?: Record<string, string>;
-      body?: any;
+      body?: unknown;
       searchParams?: Record<string, string>;
     } = {}
   ) {
@@ -40,9 +40,9 @@ export class ApiTestUtils {
       method?: string;
       url?: string;
       headers?: Record<string, string>;
-      body?: any;
+      body?: unknown;
       searchParams?: Record<string, string>;
-      user?: any;
+      user?: { id: string; email: string };
     } = {}
   ) {
     const {
@@ -66,7 +66,7 @@ export class ApiTestUtils {
     return response;
   }
 
-  static async expectJsonResponse(response: Response, expectedData?: any) {
+  static async expectJsonResponse(response: Response, expectedData?: unknown) {
     const data = await response.json();
     expect(data).toBeDefined();
 
@@ -77,7 +77,10 @@ export class ApiTestUtils {
     return data;
   }
 
-  static expectErrorResponse(data: any, expectedError?: string) {
+  static expectErrorResponse(
+    data: { error?: string; data?: unknown },
+    expectedError?: string
+  ) {
     expect(data.error).toBeDefined();
     expect(data.data).toBeUndefined();
 
@@ -88,7 +91,10 @@ export class ApiTestUtils {
     return data;
   }
 
-  static expectSuccessResponse(data: any, expectedData?: any) {
+  static expectSuccessResponse(
+    data: { error?: string; data?: unknown },
+    expectedData?: unknown
+  ) {
     expect(data.error).toBeUndefined();
     expect(data.data).toBeDefined();
 
@@ -181,7 +187,7 @@ export const mockApiResponses = {
 
 // Webhook test utilities
 export class WebhookTestUtils {
-  static createN8nWebhookRequest(payload: any) {
+  static createN8nWebhookRequest(payload: unknown) {
     return ApiTestUtils.createMockRequest({
       method: "POST",
       url: "http://localhost:3000/api/webhooks/n8n",
@@ -197,7 +203,7 @@ export class WebhookTestUtils {
     options: {
       workflowId?: string;
       executionId?: string;
-      data?: any;
+      data?: unknown;
     } = {}
   ) {
     const {
@@ -233,7 +239,10 @@ export class WebhookTestUtils {
 
 // AI service test utilities
 export class AIServiceTestUtils {
-  static createMockAIRequest(prompt: string, options: any = {}) {
+  static createMockAIRequest(
+    prompt: string,
+    options: Record<string, unknown> = {}
+  ) {
     return {
       prompt,
       model: options.model || "gpt-4",
@@ -243,7 +252,10 @@ export class AIServiceTestUtils {
     };
   }
 
-  static createMockAIResponse(content: string, options: any = {}) {
+  static createMockAIResponse(
+    content: string,
+    options: Record<string, unknown> = {}
+  ) {
     return {
       success: true,
       content,
@@ -290,7 +302,7 @@ describe("ApiTestUtils", () => {
     });
 
     expect(request).toBeDefined();
-    expect((request.headers as any)["Authorization"]).toBe(
+    expect((request.headers as Record<string, string>)["Authorization"]).toBe(
       "Bearer test-jwt-token"
     );
   });

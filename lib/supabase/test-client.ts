@@ -20,7 +20,7 @@ export class TestDatabaseUtils {
     try {
       // This would typically run the test data migration
       // For now, we'll just verify the connection
-      const { data, error } = await this.client
+      const { error } = await this.client
         .from("campaigns")
         .select("count")
         .limit(1);
@@ -79,13 +79,13 @@ export class TestDatabaseUtils {
 
   async checkConnection() {
     try {
-      const { data, error } = await this.client
+      const { error } = await this.client
         .from("campaigns")
         .select("count")
         .limit(1);
 
       return !error;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

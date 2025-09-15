@@ -17,7 +17,7 @@ export const createTestClient = () => {
 export class DatabaseTestUtils {
   private client = createTestClient();
 
-  async seedCampaigns(campaigns: any[]) {
+  async seedCampaigns(campaigns: Record<string, unknown>[]) {
     const { data, error } = await this.client
       .from("campaigns")
       .insert(campaigns);
@@ -26,7 +26,7 @@ export class DatabaseTestUtils {
     return data;
   }
 
-  async seedContentItems(contentItems: any[]) {
+  async seedContentItems(contentItems: Record<string, unknown>[]) {
     const { data, error } = await this.client
       .from("content_items")
       .insert(contentItems);
@@ -35,7 +35,7 @@ export class DatabaseTestUtils {
     return data;
   }
 
-  async seedContentVersions(contentVersions: any[]) {
+  async seedContentVersions(contentVersions: Record<string, unknown>[]) {
     const { data, error } = await this.client
       .from("content_versions")
       .insert(contentVersions);
@@ -44,7 +44,7 @@ export class DatabaseTestUtils {
     return data;
   }
 
-  async seedWorkflowExecutions(executions: any[]) {
+  async seedWorkflowExecutions(executions: Record<string, unknown>[]) {
     const { data, error } = await this.client
       .from("workflow_executions")
       .insert(executions);
@@ -128,13 +128,13 @@ export class DatabaseTestUtils {
 
   async checkConnection() {
     try {
-      const { data, error } = await this.client
+      const { error } = await this.client
         .from("campaigns")
         .select("count")
         .limit(1);
 
       return !error;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
