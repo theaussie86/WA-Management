@@ -63,10 +63,153 @@ export const mockSupabaseClient = {
   })),
 };
 
+// Additional test utilities for comprehensive testing
+export const createMockCampaign = (overrides = {}) => ({
+  id: "test-campaign-id",
+  name: "Test Campaign",
+  description: "Test campaign description",
+  target_audience: "Test audience",
+  messaging_tone: "Professional",
+  content_themes: ["Technology", "Innovation"],
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  user_id: "test-user-id",
+  ...overrides,
+});
+
+export const createMockContentItem = (overrides = {}) => ({
+  id: "test-content-id",
+  campaign_id: "test-campaign-id",
+  title: "Test Content",
+  content_type: "linkedin_post",
+  pipeline_state: "draft",
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  user_id: "test-user-id",
+  ...overrides,
+});
+
+export const createMockContentVersion = (overrides = {}) => ({
+  id: "test-version-id",
+  content_item_id: "test-content-id",
+  version_number: 1,
+  content: "Test content version",
+  ai_generated: true,
+  created_at: new Date().toISOString(),
+  ...overrides,
+});
+
+export const createMockWorkflowExecution = (overrides = {}) => ({
+  id: "test-execution-id",
+  workflow_id: "test-workflow-id",
+  content_item_id: "test-content-id",
+  status: "completed",
+  input_data: {},
+  output_data: {},
+  execution_time_ms: 1500,
+  created_at: new Date().toISOString(),
+  ...overrides,
+});
+
+// Mock n8n webhook responses
+export const createMockN8nWebhookResponse = (overrides = {}) => ({
+  success: true,
+  data: {
+    content: "Generated content from n8n",
+    metadata: {
+      workflow_id: "test-workflow-id",
+      execution_id: "test-execution-id",
+    },
+  },
+  timestamp: new Date().toISOString(),
+  ...overrides,
+});
+
+// Mock AI service responses
+export const createMockAIResponse = (overrides = {}) => ({
+  success: true,
+  content: "AI-generated content",
+  metadata: {
+    model: "gpt-4",
+    tokens_used: 150,
+    processing_time_ms: 2000,
+  },
+  ...overrides,
+});
+
+// Database test utilities
+export const mockDatabaseOperations = {
+  campaigns: {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByUserId: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  contentItems: {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByCampaignId: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+  },
+  contentVersions: {
+    create: jest.fn(),
+    findByContentItemId: jest.fn(),
+    findLatest: jest.fn(),
+  },
+  workflowExecutions: {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByContentItemId: jest.fn(),
+  },
+};
+
+// Test data seeding utilities
+export const seedTestData = {
+  campaigns: (count = 3) => 
+    Array.from({ length: count }, (_, i) => createMockCampaign({ 
+      id: `campaign-${i + 1}`,
+      name: `Test Campaign ${i + 1}` 
+    })),
+  
+  contentItems: (campaignId, count = 5) =>
+    Array.from({ length: count }, (_, i) => createMockContentItem({
+      id: `content-${i + 1}`,
+      campaign_id: campaignId,
+      title: `Test Content ${i + 1}`,
+    })),
+  
+  contentVersions: (contentItemId, count = 2) =>
+    Array.from({ length: count }, (_, i) => createMockContentVersion({
+      id: `version-${i + 1}`,
+      content_item_id: contentItemId,
+      version_number: i + 1,
+    })),
+};
+
+// Cleanup utilities
+export const cleanupTestData = {
+  campaigns: jest.fn(),
+  contentItems: jest.fn(),
+  contentVersions: jest.fn(),
+  workflowExecutions: jest.fn(),
+  all: jest.fn(),
+};
+
 // Dummy test to prevent "no tests" error
 describe("test-utils", () => {
   it("should export utility functions", () => {
     expect(createMockUser).toBeDefined();
     expect(createMockSupabaseResponse).toBeDefined();
+    expect(createMockCampaign).toBeDefined();
+    expect(createMockContentItem).toBeDefined();
+    expect(createMockContentVersion).toBeDefined();
+    expect(createMockWorkflowExecution).toBeDefined();
+    expect(createMockN8nWebhookResponse).toBeDefined();
+    expect(createMockAIResponse).toBeDefined();
+    expect(mockDatabaseOperations).toBeDefined();
+    expect(seedTestData).toBeDefined();
+    expect(cleanupTestData).toBeDefined();
   });
 });

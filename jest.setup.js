@@ -64,3 +64,44 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }));
+
+// Mock fetch for API testing
+global.fetch = jest.fn();
+
+// Mock console methods to reduce noise in tests
+global.console = {
+  ...console,
+  // Uncomment to ignore a specific log level
+  // log: jest.fn(),
+  // debug: jest.fn(),
+  // info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+};
+
+// Mock environment variables for testing
+process.env.NODE_ENV = "test";
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
+process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
+
+// Mock crypto for UUID generation in tests
+Object.defineProperty(global, 'crypto', {
+  value: {
+    randomUUID: () => 'test-uuid-' + Math.random().toString(36).substr(2, 9),
+  },
+});
+
+// Setup test database utilities
+global.testDbUtils = {
+  seed: jest.fn(),
+  cleanup: jest.fn(),
+  reset: jest.fn(),
+};
+
+// Mock n8n webhook utilities
+global.n8nMocks = {
+  webhook: jest.fn(),
+  workflow: jest.fn(),
+  execution: jest.fn(),
+};
