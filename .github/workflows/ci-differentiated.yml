@@ -1,4 +1,4 @@
-name: CI Pipeline (Optimized - Differenzierte Teststrategie)
+name: CI Pipeline (Differenzierte Teststrategie)
 
 on:
   push:
@@ -45,9 +45,9 @@ jobs:
             echo "✅ Code formatting is correct."
           fi
 
-  # Job 2: Critical Tests (Lib + Hooks) - HOCHSTE PRIORITÄT
+  # Job 2: Kritische Tests (Lib + Hooks)
   critical-tests:
-    name: 🔴 Critical Tests (Lib & Hooks)
+    name: Critical Tests (Lib & Hooks)
     runs-on: ubuntu-latest
     needs: code-quality
     steps:
@@ -74,9 +74,9 @@ jobs:
           name: critical-tests-coverage
           fail_ci_if_error: true
 
-  # Job 3: Component Tests - MITTLERE PRIORITÄT
+  # Job 3: Komponenten Tests
   component-tests:
-    name: 🟡 Component Tests
+    name: Component Tests
     runs-on: ubuntu-latest
     needs: code-quality
     steps:
@@ -107,7 +107,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [critical-tests, component-tests]
+    needs: code-quality
     services:
       postgres:
         image: postgres:15
@@ -164,9 +164,9 @@ jobs:
           name: integration-tests-coverage
           fail_ci_if_error: false
 
-  # Job 5: Build & Type Check - HOCHSTE PRIORITÄT
+  # Job 5: Build & Type Check
   build:
-    name: 🔴 Build Application
+    name: Build Application
     runs-on: ubuntu-latest
     needs: [critical-tests, component-tests, integration-tests]
     steps:
@@ -198,9 +198,9 @@ jobs:
             package.json
             package-lock.json
 
-  # Job 6: Security Scan - HOCHSTE PRIORITÄT
+  # Job 6: Security Scan
   security-scan:
-    name: 🔴 Security Scan
+    name: Security Scan
     runs-on: ubuntu-latest
     needs: code-quality
     steps:
@@ -219,40 +219,12 @@ jobs:
       - name: Run Security Audit
         run: npm audit --audit-level=moderate
 
-  # Job 7: Performance Tests - MITTLERE PRIORITÄT
-  performance-tests:
-    name: 🟡 Performance Tests
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run Performance Tests
-        run: npm run test:ci -- --testPathPatterns="__tests__/integration.*performance" --testTimeout=60000
-
-  # Job 8: Test Summary
+  # Job 7: Test Summary
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
     needs:
-      [
-        critical-tests,
-        component-tests,
-        integration-tests,
-        build,
-        security-scan,
-        performance-tests,
-      ]
+      [critical-tests, component-tests, integration-tests, build, security-scan]
     if: always()
     steps:
       - name: Generate Test Summary
@@ -261,18 +233,17 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Test Kategorie | Status | Priorität | Coverage |" >> $GITHUB_STEP_SUMMARY
           echo "|----------------|--------|-----------|----------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Critical (Lib + Hooks) | ${{ needs.critical-tests.result }} | 🔴 Hoch | 100%+ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Critical (Lib + Hooks) | ${{ needs.critical-tests.result }} | 🔴 Hoch | 85%+ |" >> $GITHUB_STEP_SUMMARY
           echo "| Components | ${{ needs.component-tests.result }} | 🟡 Mittel | 50%+ |" >> $GITHUB_STEP_SUMMARY
           echo "| Integration | ${{ needs.integration-tests.result }} | 🟡 Mittel | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ needs.build.result }} | 🔴 Hoch | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Security | ${{ needs.security-scan.result }} | 🔴 Hoch | - |" >> $GITHUB_STEP_SUMMARY
-          echo "| Performance | ${{ needs.performance-tests.result }} | 🟡 Mittel | - |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 Coverage Details" >> $GITHUB_STEP_SUMMARY
-          echo "- **Lib Code**: 100% Coverage (kritisch)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Hooks**: 92%+ Coverage (sehr gut)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Eigene Komponenten**: 50%+ Coverage (mittlere Priorität)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Shadcn UI**: 0% Grenzwerte (niedrige Priorität)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Lib Code**: 80%+ branches, 85%+ functions/lines/statements" >> $GITHUB_STEP_SUMMARY
+          echo "- **Hooks**: 80%+ branches, 85%+ functions/lines/statements" >> $GITHUB_STEP_SUMMARY
+          echo "- **Eigene Komponenten**: 40%+ branches, 50%+ functions/lines/statements" >> $GITHUB_STEP_SUMMARY
+          echo "- **Shadcn UI**: 10%+ branches, 15%+ functions/lines/statements" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🎯 Teststrategie" >> $GITHUB_STEP_SUMMARY
           echo "Fokus auf kritische Bereiche (lib, hooks) mit hohen Coverage-Anforderungen." >> $GITHUB_STEP_SUMMARY

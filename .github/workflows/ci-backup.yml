@@ -1,4 +1,4 @@
-name: CI Pipeline (Optimized - Differenzierte Teststrategie)
+name: CI Pipeline
 
 on:
   push:
@@ -45,9 +45,9 @@ jobs:
             echo "✅ Code formatting is correct."
           fi
 
-  # Job 2: Critical Tests (Lib + Hooks) - HOCHSTE PRIORITÄT
+  # Job 2: Critical Tests (Lib + Hooks)
   critical-tests:
-    name: 🔴 Critical Tests (Lib & Hooks)
+    name: Critical Tests (Lib & Hooks)
     runs-on: ubuntu-latest
     needs: code-quality
     steps:
@@ -74,9 +74,9 @@ jobs:
           name: critical-tests-coverage
           fail_ci_if_error: true
 
-  # Job 3: Component Tests - MITTLERE PRIORITÄT
+  # Job 3: Component Tests
   component-tests:
-    name: 🟡 Component Tests
+    name: Component Tests
     runs-on: ubuntu-latest
     needs: code-quality
     steps:
@@ -164,9 +164,9 @@ jobs:
           name: integration-tests-coverage
           fail_ci_if_error: false
 
-  # Job 5: Build & Type Check - HOCHSTE PRIORITÄT
+  # Job 5: Build & Type Check
   build:
-    name: 🔴 Build Application
+    name: Build Application
     runs-on: ubuntu-latest
     needs: [critical-tests, component-tests, integration-tests]
     steps:
@@ -198,9 +198,9 @@ jobs:
             package.json
             package-lock.json
 
-  # Job 6: Security Scan - HOCHSTE PRIORITÄT
+  # Job 6: Security Scan
   security-scan:
-    name: 🔴 Security Scan
+    name: Security Scan
     runs-on: ubuntu-latest
     needs: code-quality
     steps:
@@ -219,9 +219,9 @@ jobs:
       - name: Run Security Audit
         run: npm audit --audit-level=moderate
 
-  # Job 7: Performance Tests - MITTLERE PRIORITÄT
+  # Job 7: Performance Tests
   performance-tests:
-    name: 🟡 Performance Tests
+    name: Performance Tests
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -240,7 +240,35 @@ jobs:
       - name: Run Performance Tests
         run: npm run test:ci -- --testPathPatterns="__tests__/integration.*performance" --testTimeout=60000
 
-  # Job 8: Test Summary
+  # Job 8: E2E Tests (if applicable)
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Start Application
+        run: |
+          npm run build
+          npm start &
+          sleep 30
+
+      - name: Run E2E Tests
+        run: npm run test:ci -- --testPathPatterns="__tests__/e2e"
+
+  # Job 9: Test Summary
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
@@ -268,12 +296,5 @@ jobs:
           echo "| Security | ${{ needs.security-scan.result }} | 🔴 Hoch | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Performance | ${{ needs.performance-tests.result }} | 🟡 Mittel | - |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Coverage Details" >> $GITHUB_STEP_SUMMARY
-          echo "- **Lib Code**: 100% Coverage (kritisch)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Hooks**: 92%+ Coverage (sehr gut)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Eigene Komponenten**: 50%+ Coverage (mittlere Priorität)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Shadcn UI**: 0% Grenzwerte (niedrige Priorität)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🎯 Teststrategie" >> $GITHUB_STEP_SUMMARY
-          echo "Fokus auf kritische Bereiche (lib, hooks) mit hohen Coverage-Anforderungen." >> $GITHUB_STEP_SUMMARY
-          echo "Moderate Anforderungen für eigene Komponenten, niedrige für Shadcn UI." >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "Detailed coverage reports are available in the individual job artifacts." >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,259 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # Job 1: Quick Checks
+  quick-checks:
+    name: Quick Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Type Check
+        run: npm run type-check
+
+      - name: ESLint Check
+        run: npm run lint
+
+      - name: Check for Console Logs
+        run: |
+          if grep -r "console\." --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next .; then
+            echo "⚠️ Console logs found in code. Consider removing them before merging."
+            echo "Files with console logs:"
+            grep -r "console\." --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next . -l
+          else
+            echo "✅ No console logs found in code."
+          fi
+
+      - name: Check for TODO Comments
+        run: |
+          TODO_COUNT=$(grep -r "TODO\|FIXME\|HACK" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next . | wc -l)
+          if [ $TODO_COUNT -gt 0 ]; then
+            echo "⚠️ Found $TODO_COUNT TODO/FIXME/HACK comments:"
+            grep -r "TODO\|FIXME\|HACK" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next .
+          else
+            echo "✅ No TODO/FIXME/HACK comments found."
+          fi
+
+  # Job 2: Unit Tests
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: quick-checks
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Critical Tests
+        run: npm run test:critical --maxWorkers=2
+
+      - name: Comment PR with Coverage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coverage = fs.readFileSync('coverage/lcov-report/index.html', 'utf8');
+            const coverageMatch = coverage.match(/<div class="cstat-no" title="not covered">(\d+)<\/div>/);
+            const coveragePercent = coverageMatch ? (100 - parseInt(coverageMatch[1])).toFixed(2) : 'Unknown';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📊 Test Coverage Report
+              
+              **Coverage: ${coveragePercent}%**
+              
+              Detailed coverage report: [View Coverage Report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+              `
+            });
+
+  # Job 3: Integration Tests
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: quick-checks
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Integration Tests
+        run: npm run test:ci -- --testPathPatterns="__tests__/integration" --maxWorkers=2
+
+  # Job 4: Build Check
+  build-check:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Check Bundle Size
+        run: |
+          BUNDLE_SIZE=$(du -sh .next/static | cut -f1)
+          echo "Bundle size: $BUNDLE_SIZE"
+
+          # Check if bundle size is reasonable (adjust threshold as needed)
+          if [ "$BUNDLE_SIZE" = "0B" ]; then
+            echo "❌ Build failed - no bundle generated"
+            exit 1
+          else
+            echo "✅ Build successful - Bundle size: $BUNDLE_SIZE"
+          fi
+
+  # Job 5: Security Check
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    needs: quick-checks
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Security Audit
+        run: npm audit --audit-level=moderate
+
+      - name: Check for Sensitive Data
+        run: |
+          # Check for potential secrets in code
+          if grep -r -i "password\|secret\|key\|token" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next . | grep -v "// TODO\|// FIXME\|test\|mock"; then
+            echo "⚠️ Potential sensitive data found in code. Please review:"
+            grep -r -i "password\|secret\|key\|token" --include="*.ts" --include="*.tsx" --exclude-dir=node_modules --exclude-dir=.next . | grep -v "// TODO\|// FIXME\|test\|mock"
+          else
+            echo "✅ No sensitive data found in code."
+          fi
+
+  # Job 6: Performance Check
+  performance-check:
+    name: Performance Check
+    runs-on: ubuntu-latest
+    needs: build-check
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Performance Tests
+        run: npm run test:ci -- --testPathPatterns="__tests__/integration.*performance" --testTimeout=30000
+
+  # Job 7: PR Summary
+  pr-summary:
+    name: PR Summary
+    runs-on: ubuntu-latest
+    needs:
+      [
+        unit-tests,
+        integration-tests,
+        build-check,
+        security-check,
+        performance-check,
+      ]
+    if: always()
+    steps:
+      - name: Generate PR Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: checks } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.payload.pull_request.head.sha
+            });
+
+            const summary = {
+              'Quick Checks': checks.check_runs.find(c => c.name === 'Quick Checks')?.conclusion || 'pending',
+              'Unit Tests': checks.check_runs.find(c => c.name === 'Unit Tests')?.conclusion || 'pending',
+              'Integration Tests': checks.check_runs.find(c => c.name === 'Integration Tests')?.conclusion || 'pending',
+              'Build Check': checks.check_runs.find(c => c.name === 'Build Check')?.conclusion || 'pending',
+              'Security Check': checks.check_runs.find(c => c.name === 'Security Check')?.conclusion || 'pending',
+              'Performance Check': checks.check_runs.find(c => c.name === 'Performance Check')?.conclusion || 'pending'
+            };
+
+            const allPassed = Object.values(summary).every(status => status === 'success');
+            const emoji = allPassed ? '✅' : '❌';
+
+            const comment = `## ${emoji} PR Check Summary
+
+            | Check | Status |
+            |-------|--------|
+            ${Object.entries(summary).map(([name, status]) => `| ${name} | ${status === 'success' ? '✅ Passed' : status === 'failure' ? '❌ Failed' : '⏳ Pending'} |`).join('\n')}
+
+            ${allPassed ? '🎉 All checks passed! Ready for review.' : '⚠️ Some checks failed. Please review and fix before merging.'}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

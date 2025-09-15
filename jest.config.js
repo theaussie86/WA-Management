@@ -31,11 +31,40 @@ const customJestConfig = {
     "!**/page.tsx",
   ],
   coverageThreshold: {
+    // Shadcn UI Komponenten - niedrige Priorität
+    "components/ui/**/*.{js,jsx,ts,tsx}": {
+      branches: 10,
+      functions: 15,
+      lines: 15,
+      statements: 15,
+    },
+    // Eigene Komponenten - mittlere Priorität
+    "components/**/*.{js,jsx,ts,tsx}": {
+      branches: 40,
+      functions: 50,
+      lines: 50,
+      statements: 50,
+    },
+    // Lib Code - hohe Priorität (realistische Ziele)
+    "lib/**/*.{js,jsx,ts,tsx}": {
+      branches: 60,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+    // Hooks - hohe Priorität
+    "hooks/**/*.{js,jsx,ts,tsx}": {
+      branches: 60,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+    // Globale Mindestanforderungen
     global: {
-      branches: 15,
-      functions: 20,
-      lines: 20,
-      statements: 20,
+      branches: 25,
+      functions: 30,
+      lines: 30,
+      statements: 30,
     },
   },
   testTimeout: 10000,
