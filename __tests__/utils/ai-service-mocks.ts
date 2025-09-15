@@ -458,7 +458,7 @@ export class MockAIService {
       const errorType = this.errorRate >= 1.0 ? "rate_limit" : "server_error";
       return AIServiceMocks.createErrorResponse(
         errorType
-      ) as MockContentGenerationResponse;
+      ) as unknown as MockContentGenerationResponse;
     }
 
     return AIServiceMocks.createContentGenerationResponse(request);

@@ -223,7 +223,7 @@ export class WebhookTestUtils {
           tokens_used: 150,
           processing_time_ms: 2000,
         },
-        ...data,
+        ...(data as Record<string, unknown>),
       },
     };
   }

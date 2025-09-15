@@ -10,6 +10,15 @@ import {
 } from "../utils/integration-test-utils";
 import { AIServiceMocks, MockAIService } from "../utils/ai-service-mocks";
 
+// Type definitions for test results
+interface TestResult {
+  step: string;
+  data: {
+    success: boolean;
+    [key: string]: unknown;
+  };
+}
+
 describe("AI Service Integration Tests", () => {
   let integrationUtils: IntegrationTestUtils;
   let mockAIService: MockAIService;
@@ -46,7 +55,7 @@ describe("AI Service Integration Tests", () => {
       expect(result.results).toHaveLength(4); // 4 Schritte im Pipeline
 
       // Überprüfe, dass alle Pipeline-Schritte erfolgreich waren
-      const steps = result.results.map((r) => r.step);
+      const steps = result.results.map((r: unknown) => (r as TestResult).step);
       expect(steps).toContain("content_item_created");
       expect(steps).toContain("ai_content_generated");
       expect(steps).toContain("content_version_created");
@@ -109,8 +118,8 @@ describe("AI Service Integration Tests", () => {
       expect(result.results).toHaveLength(2); // Research + Storage
 
       const researchStep = result.results.find(
-        (r) => r.step === "trends_researched"
-      );
+        (r: unknown) => (r as TestResult).step === "trends_researched"
+      ) as TestResult;
       expect(researchStep).toBeDefined();
       expect(researchStep.data.success).toBe(true);
       if (researchStep.data.success && "trends" in researchStep.data) {
@@ -149,8 +158,8 @@ describe("AI Service Integration Tests", () => {
       expect(result.results).toHaveLength(2); // Generation + Storage
 
       const generationStep = result.results.find(
-        (r) => r.step === "image_generated"
-      );
+        (r: unknown) => (r as TestResult).step === "image_generated"
+      ) as TestResult;
       expect(generationStep).toBeDefined();
       expect(generationStep.data.success).toBe(true);
       if (generationStep.data.success && "images" in generationStep.data) {
@@ -191,11 +200,13 @@ describe("AI Service Integration Tests", () => {
       expect(result.results).toHaveLength(2); // Request + Response
 
       const requestStep = result.results.find(
-        (r) => r.step === "auth_request_created"
-      );
+        (r: unknown) => (r as TestResult).step === "auth_request_created"
+      ) as TestResult;
       expect(requestStep).toBeDefined();
       expect(requestStep.data.method).toBe("GET");
-      expect(requestStep.data.headers.Authorization).toBeDefined();
+      expect(
+        (requestStep.data.headers as Record<string, unknown>).Authorization
+      ).toBeDefined();
     });
   });
 
