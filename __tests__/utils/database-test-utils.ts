@@ -54,23 +54,63 @@ export class DatabaseTestUtils {
   }
 
   async cleanupCampaigns() {
-    // Mock implementation for testing
-    return Promise.resolve();
+    try {
+      const { error } = await this.client
+        .from("campaigns")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.warn("Cleanup campaigns failed:", error);
+      return false;
+    }
   }
 
   async cleanupContentItems() {
-    // Mock implementation for testing
-    return Promise.resolve();
+    try {
+      const { error } = await this.client
+        .from("content_items")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.warn("Cleanup content items failed:", error);
+      return false;
+    }
   }
 
   async cleanupContentVersions() {
-    // Mock implementation for testing
-    return Promise.resolve();
+    try {
+      const { error } = await this.client
+        .from("content_versions")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.warn("Cleanup content versions failed:", error);
+      return false;
+    }
   }
 
   async cleanupWorkflowExecutions() {
-    // Mock implementation for testing
-    return Promise.resolve();
+    try {
+      const { error } = await this.client
+        .from("workflow_executions")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.warn("Cleanup workflow executions failed:", error);
+      return false;
+    }
   }
 
   async cleanupAll() {
@@ -78,10 +118,25 @@ export class DatabaseTestUtils {
     await this.cleanupContentVersions();
     await this.cleanupContentItems();
     await this.cleanupCampaigns();
+    return true;
   }
 
   async resetDatabase() {
     await this.cleanupAll();
+    return true;
+  }
+
+  async checkConnection() {
+    try {
+      const { data, error } = await this.client
+        .from("campaigns")
+        .select("count")
+        .limit(1);
+
+      return !error;
+    } catch (error) {
+      return false;
+    }
   }
 }
 

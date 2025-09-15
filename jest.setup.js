@@ -23,6 +23,8 @@ jest.mock("next/navigation", () => ({
 // Mock Supabase
 jest.mock("@supabase/supabase-js", () => ({
   createClient: jest.fn(() => ({
+    supabaseUrl: process.env.TEST_SUPABASE_URL || "http://localhost:54321",
+    supabaseKey: process.env.TEST_SUPABASE_ANON_KEY || "test-anon-key",
     auth: {
       signIn: jest.fn(),
       signUp: jest.fn(),
@@ -32,11 +34,13 @@ jest.mock("@supabase/supabase-js", () => ({
     },
     from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
+      insert: jest.fn().mockResolvedValue({ data: [], error: null }),
       update: jest.fn().mockReturnThis(),
       delete: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
-      single: jest.fn(),
+      neq: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockResolvedValue({ data: [], error: null }),
+      single: jest.fn().mockResolvedValue({ data: null, error: null }),
     })),
   })),
 }));
@@ -86,9 +90,9 @@ process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
 process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
 
 // Mock crypto for UUID generation in tests
-Object.defineProperty(global, 'crypto', {
+Object.defineProperty(global, "crypto", {
   value: {
-    randomUUID: () => 'test-uuid-' + Math.random().toString(36).substr(2, 9),
+    randomUUID: () => "test-uuid-" + Math.random().toString(36).substr(2, 9),
   },
 });
 
