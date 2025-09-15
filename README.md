@@ -18,16 +18,37 @@ Eine Next.js 15 App mit Supabase Backend für das Weissteiner Automation (WA) Ma
 - Node.js 20+
 - npm
 - Supabase Account
+- Git
 
 ### Installation
 
 ```bash
+# Repository klonen
+git clone <repository-url>
+cd wa-management
+
 # Dependencies installieren
 npm install
 
 # Environment Variables konfigurieren
 cp .env.example .env.local
 # Bearbeite .env.local mit deinen Supabase Credentials
+```
+
+### Supabase Setup
+
+```bash
+# Supabase CLI installieren (falls noch nicht vorhanden)
+npm install -g supabase
+
+# Supabase Projekt initialisieren
+supabase init
+
+# Lokale Supabase Instanz starten (für Entwicklung)
+supabase start
+
+# Datenbank-Migrationen anwenden
+supabase db reset
 ```
 
 ### Entwicklungsserver starten
@@ -37,6 +58,65 @@ npm run dev
 ```
 
 Die App ist dann unter [http://localhost:3000](http://localhost:3000) verfügbar.
+
+### Testing Setup
+
+```bash
+# Alle Tests ausführen
+npm test
+
+# Tests im Watch-Modus
+npm run test:watch
+
+# Spezifische Test-Kategorien
+npm run test:components  # Komponenten-Tests
+npm run test:lib         # Lib-Code Tests
+npm run test:hooks        # Hook-Tests
+npm run test:critical     # Kritische Bereiche (lib + hooks)
+
+# Integration Tests
+npm run test:integration
+
+# Coverage Report generieren
+npm run test:coverage
+```
+
+### Test-Datenbank Setup
+
+Für Integration-Tests wird eine separate Test-Datenbank verwendet:
+
+```bash
+# Test-Datenbank initialisieren
+npm run test:setup
+
+# Test-Datenbank zurücksetzen
+npm run test:cleanup
+
+# Test-Daten seeden
+npm run test:seed
+```
+
+### n8n Integration
+
+Das System ist für die Integration mit n8n Workflows konzipiert:
+
+```bash
+# n8n Workflows konfigurieren
+# Siehe docs/n8n-integration.md für Details
+
+# Test-Webhooks für n8n
+npm run test:webhooks
+
+# Mock AI Service für n8n Testing
+npm run test:mock-ai
+```
+
+**Wichtige n8n Konfiguration:**
+
+- n8n Workflows greifen direkt auf die Supabase-Datenbank zu
+- Keine Webhooks erforderlich für die Grundfunktionalität
+- Test-Datenbank ist über separate Schema `test_data` isoliert
+- RLS-Policies gewährleisten Datenisolation
 
 ## Testing
 

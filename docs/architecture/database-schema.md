@@ -226,4 +226,217 @@ $$ LANGUAGE plpgsql;
 
 -- Schedule daily refresh via pg_cron
 SELECT cron.schedule('refresh-campaign-performance', '0 1 * * *', 'SELECT refresh_campaign_performance();');
+
+-- Testing-specific schema modifications
+-- These changes are only applied in test environments
+
+-- Test data isolation schema (for testing only)
+CREATE SCHEMA IF NOT EXISTS test_data;
+
+-- Test campaigns table (isolated from production)
+CREATE TABLE IF NOT EXISTS test_data.test_campaigns (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    target_audience VARCHAR(500) NOT NULL,
+    messaging_tone VARCHAR(50) CHECK (messaging_tone IN ('professional', 'thought_leader', 'educational', 'promotional')),
+    content_themes TEXT[] DEFAULT '{}',
+    ai_instructions TEXT,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'paused', 'archived')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    is_test_data BOOLEAN DEFAULT true
+);
+
+-- Test content items table (isolated from production)
+CREATE TABLE IF NOT EXISTS test_data.test_content_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    campaign_id UUID REFERENCES test_data.test_campaigns(id) ON DELETE CASCADE,
+    content_type VARCHAR(50) NOT NULL CHECK (content_type IN ('trending_topic', 'content_idea', 'draft_post', 'creative_asset')),
+    stage VARCHAR(50) NOT NULL CHECK (stage IN ('research', 'ideation', 'drafting', 'creative', 'queued', 'published', 'rejected')),
+    current_version_id UUID,
+    approval_status VARCHAR(50) DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'rejected', 'needs_revision')),
+    linkedin_post_id VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    approved_at TIMESTAMPTZ,
+    published_at TIMESTAMPTZ,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    is_test_data BOOLEAN DEFAULT true
+);
+
+-- Test workflow executions table (isolated from production)
+CREATE TABLE IF NOT EXISTS test_data.test_workflow_executions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    content_item_id UUID REFERENCES test_data.test_content_items(id) ON DELETE CASCADE,
+    workflow_name VARCHAR(255) NOT NULL,
+    execution_status VARCHAR(50) DEFAULT 'running' CHECK (execution_status IN ('running', 'completed', 'failed', 'cancelled')),
+    input_data JSONB NOT NULL DEFAULT '{}',
+    output_data JSONB DEFAULT '{}',
+    error_message TEXT,
+    ai_service_used VARCHAR(100),
+    execution_duration INTEGER,
+    cost_estimate DECIMAL(10,4),
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    completed_at TIMESTAMPTZ,
+    is_test_data BOOLEAN DEFAULT true
+);
+
+-- Test content versions table (isolated from production)
+CREATE TABLE IF NOT EXISTS test_data.test_content_versions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    content_item_id UUID REFERENCES test_data.test_content_items(id) ON DELETE CASCADE,
+    version_number INTEGER NOT NULL,
+    version_type VARCHAR(50) NOT NULL CHECK (version_type IN ('ai_generated', 'human_edited', 'ai_regenerated', 'final_approved')),
+    content_data JSONB NOT NULL DEFAULT '{}',
+    generation_source VARCHAR(255),
+    editor_notes TEXT,
+    created_by VARCHAR(50) NOT NULL CHECK (created_by IN ('ai_workflow', 'human_user')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    workflow_execution_id UUID REFERENCES test_data.test_workflow_executions(id),
+    is_test_data BOOLEAN DEFAULT true,
+    CONSTRAINT test_content_versions_item_version_unique UNIQUE (content_item_id, version_number)
+);
+
+-- Test cleanup functions
+CREATE OR REPLACE FUNCTION cleanup_test_data()
+RETURNS void AS $$
+BEGIN
+    -- Clean up test data in reverse dependency order
+    DELETE FROM test_data.test_content_versions;
+    DELETE FROM test_data.test_workflow_executions;
+    DELETE FROM test_data.test_content_items;
+    DELETE FROM test_data.test_campaigns;
+
+    -- Reset sequences if any
+    -- Note: UUIDs don't use sequences, but this is here for completeness
+END;
+$$ LANGUAGE plpgsql;
+
+-- Test data seeding function
+CREATE OR REPLACE FUNCTION seed_test_data()
+RETURNS TABLE (
+    campaigns_created INTEGER,
+    content_items_created INTEGER,
+    workflow_executions_created INTEGER,
+    content_versions_created INTEGER
+) AS $$
+DECLARE
+    test_user_id UUID;
+    campaign_id UUID;
+    content_item_id UUID;
+    workflow_execution_id UUID;
+    content_version_id UUID;
+    campaigns_count INTEGER := 0;
+    content_items_count INTEGER := 0;
+    workflow_executions_count INTEGER := 0;
+    content_versions_count INTEGER := 0;
+BEGIN
+    -- Get or create test user
+    SELECT id INTO test_user_id FROM auth.users WHERE email = 'test@example.com' LIMIT 1;
+
+    IF test_user_id IS NULL THEN
+        -- Create test user (this would typically be done through Supabase Auth)
+        -- For testing purposes, we'll use a placeholder UUID
+        test_user_id := '00000000-0000-0000-0000-000000000001';
+    END IF;
+
+    -- Create test campaigns
+    FOR i IN 1..3 LOOP
+        INSERT INTO test_data.test_campaigns (
+            name, description, target_audience, messaging_tone,
+            content_themes, ai_instructions, user_id
+        ) VALUES (
+            'Test Campaign ' || i,
+            'Test campaign description ' || i,
+            'Test audience ' || i,
+            'professional',
+            ARRAY['test', 'automation'],
+            'Test AI instructions ' || i,
+            test_user_id
+        ) RETURNING id INTO campaign_id;
+
+        campaigns_count := campaigns_count + 1;
+
+        -- Create test content items for each campaign
+        FOR j IN 1..2 LOOP
+            INSERT INTO test_data.test_content_items (
+                campaign_id, content_type, stage, approval_status, user_id
+            ) VALUES (
+                campaign_id,
+                'draft_post',
+                'drafting',
+                'pending',
+                test_user_id
+            ) RETURNING id INTO content_item_id;
+
+            content_items_count := content_items_count + 1;
+
+            -- Create test workflow execution
+            INSERT INTO test_data.test_workflow_executions (
+                content_item_id, workflow_name, execution_status,
+                input_data, ai_service_used, user_id
+            ) VALUES (
+                content_item_id,
+                'test_content_generation',
+                'completed',
+                '{"test": true}',
+                'mock_ai_service',
+                test_user_id
+            ) RETURNING id INTO workflow_execution_id;
+
+            workflow_executions_count := workflow_executions_count + 1;
+
+            -- Create test content version
+            INSERT INTO test_data.test_content_versions (
+                content_item_id, version_type, content_data,
+                generation_source, created_by, workflow_execution_id
+            ) VALUES (
+                content_item_id,
+                'ai_generated',
+                '{"content": "Test content ' || j || '", "metadata": {"test": true}}',
+                'test_workflow',
+                'ai_workflow',
+                workflow_execution_id
+            ) RETURNING id INTO content_version_id;
+
+            content_versions_count := content_versions_count + 1;
+
+            -- Update content item with current version
+            UPDATE test_data.test_content_items
+            SET current_version_id = content_version_id
+            WHERE id = content_item_id;
+        END LOOP;
+    END LOOP;
+
+    RETURN QUERY SELECT
+        campaigns_count,
+        content_items_count,
+        workflow_executions_count,
+        content_versions_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Test environment detection function
+CREATE OR REPLACE FUNCTION is_test_environment()
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN current_setting('app.environment', true) = 'test'
+        OR current_database() LIKE '%test%'
+        OR current_setting('app.test_mode', true) = 'true';
+END;
+$$ LANGUAGE plpgsql;
+
+-- RLS policies for test data (only accessible in test environment)
+CREATE POLICY "Test data access only in test environment" ON test_data.test_campaigns
+    FOR ALL USING (is_test_environment());
+
+CREATE POLICY "Test data access only in test environment" ON test_data.test_content_items
+    FOR ALL USING (is_test_environment());
+
+CREATE POLICY "Test data access only in test environment" ON test_data.test_workflow_executions
+    FOR ALL USING (is_test_environment());
+
+CREATE POLICY "Test data access only in test environment" ON test_data.test_content_versions
+    FOR ALL USING (is_test_environment());
 ```

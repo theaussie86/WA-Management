@@ -122,6 +122,183 @@ paths:
         "200":
           description: Content published successfully
 
+  /health:
+    get:
+      summary: Health check endpoint for monitoring and testing
+      description: Returns system health status including database connectivity and response times
+      responses:
+        "200":
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, unhealthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                  environment:
+                    type: string
+                  services:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                        enum: [healthy, unhealthy]
+                      api:
+                        type: string
+                        enum: [healthy, unhealthy]
+                  metrics:
+                    type: object
+                    properties:
+                      responseTime:
+                        type: string
+                      uptime:
+                        type: number
+        "503":
+          description: System is unhealthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [unhealthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  error:
+                    type: string
+                  services:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                        enum: [unhealthy]
+                      api:
+                        type: string
+                        enum: [unhealthy]
+
+  /test/setup:
+    post:
+      summary: Setup test environment (Development/Testing only)
+      description: Initializes test database and creates test data for integration testing
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Test environment setup successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  testData:
+                    type: object
+                    properties:
+                      campaigns:
+                        type: integer
+                      contentItems:
+                        type: integer
+                      users:
+                        type: integer
+        "401":
+          description: Unauthorized - requires authentication
+        "403":
+          description: Forbidden - not available in production
+
+  /test/cleanup:
+    post:
+      summary: Cleanup test environment (Development/Testing only)
+      description: Removes all test data and resets test database
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Test environment cleaned up successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  cleanedItems:
+                    type: object
+                    properties:
+                      campaigns:
+                        type: integer
+                      contentItems:
+                        type: integer
+                      users:
+                        type: integer
+        "401":
+          description: Unauthorized - requires authentication
+        "403":
+          description: Forbidden - not available in production
+
+  /test/mock-ai:
+    post:
+      summary: Configure AI service mocks (Development/Testing only)
+      description: Configures mock AI service responses for testing
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                errorRate:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                latency:
+                  type: object
+                  properties:
+                    min:
+                      type: number
+                    max:
+                      type: number
+                mockResponses:
+                  type: boolean
+                responseTypes:
+                  type: array
+                  items:
+                    type: string
+                    enum: [content_generation, trend_research, image_generation]
+      responses:
+        "200":
+          description: AI service mocks configured successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  configuration:
+                    type: object
+        "401":
+          description: Unauthorized - requires authentication
+        "403":
+          description: Forbidden - not available in production
+
 components:
   schemas:
     Campaign:
