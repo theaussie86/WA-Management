@@ -1,7 +1,9 @@
 name: Deploy Pipeline
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -18,46 +20,22 @@ env:
   NODE_VERSION: "20"
 
 jobs:
-  # Job 1: Pre-deployment Tests
-  pre-deployment-tests:
-    name: Pre-deployment Tests
+  # Job 1: Verify CI Success
+  verify-ci-success:
+    name: Verify CI Pipeline Success
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run Critical Tests
-        run: npm run test:critical
-        env:
-          TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
-          TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
-
-      - name: Run Component Tests
-        run: npm run test:components
-        env:
-          TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
-          TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
-
-      - name: Run Integration Tests
-        run: npm run test:integration
-        env:
-          TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
-          TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+      - name: Check CI Pipeline Status
+        run: |
+          echo "✅ CI Pipeline completed successfully"
+          echo "Proceeding with deployment..."
 
   # Job 2: Build for Production
   build-production:
     name: Build for Production
     runs-on: ubuntu-latest
-    needs: pre-deployment-tests
+    needs: verify-ci-success
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -93,7 +71,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: build-production
-    if: github.ref == 'refs/heads/main'
+    if: github.event.workflow_run.conclusion == 'success'
     environment: production
     steps:
       - name: Checkout Code
@@ -125,7 +103,7 @@ jobs:
   rollback:
     name: Rollback Deployment
     runs-on: ubuntu-latest
-    if: failure() && github.ref == 'refs/heads/main'
+    if: failure() && github.event.workflow_run.conclusion == 'success'
     environment: production
     steps:
       - name: Rollback to Previous Version
