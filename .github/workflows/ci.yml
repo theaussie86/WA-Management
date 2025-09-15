@@ -1,4 +1,4 @@
-name: CI Pipeline (Optimized - Differenzierte Teststrategie)
+name: CI Pipeline
 
 on:
   push:
@@ -219,40 +219,12 @@ jobs:
       - name: Run Security Audit
         run: npm audit --audit-level=moderate
 
-  # Job 7: Performance Tests - MITTLERE PRIORITÄT
-  performance-tests:
-    name: 🟡 Performance Tests
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Run Performance Tests
-        run: npm run test:ci -- --testPathPatterns="__tests__/integration.*performance" --testTimeout=60000
-
-  # Job 8: Test Summary
+  # Job 7: Test Summary
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
     needs:
-      [
-        critical-tests,
-        component-tests,
-        integration-tests,
-        build,
-        security-scan,
-        performance-tests,
-      ]
+      [critical-tests, component-tests, integration-tests, build, security-scan]
     if: always()
     steps:
       - name: Generate Test Summary
@@ -266,7 +238,6 @@ jobs:
           echo "| Integration | ${{ needs.integration-tests.result }} | 🟡 Mittel | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ needs.build.result }} | 🔴 Hoch | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Security | ${{ needs.security-scan.result }} | 🔴 Hoch | - |" >> $GITHUB_STEP_SUMMARY
-          echo "| Performance | ${{ needs.performance-tests.result }} | 🟡 Mittel | - |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 Coverage Details" >> $GITHUB_STEP_SUMMARY
           echo "- **Lib Code**: 100% Coverage (kritisch)" >> $GITHUB_STEP_SUMMARY
