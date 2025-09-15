@@ -120,16 +120,6 @@ jobs:
           # Health check
           curl -f ${{ secrets.PRODUCTION_URL }}/api/health || exit 1
 
-      - name: Notify Deployment Success
-        uses: 8398a7/action-slack@v3
-        if: success()
-        with:
-          status: success
-          channel: "#deployments"
-          text: "🚀 Production deployment successful!"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
   # Job 4: Rollback (if needed)
   rollback:
     name: Rollback Deployment
@@ -142,15 +132,6 @@ jobs:
           echo "🔄 Rolling back to previous version..."
           # Add rollback logic here
           # This would typically involve reverting to the previous deployment
-
-      - name: Notify Rollback
-        uses: 8398a7/action-slack@v3
-        with:
-          status: failure
-          channel: "#deployments"
-          text: "🔄 Rollback initiated due to deployment failure"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # Job 5: Cleanup
   cleanup:

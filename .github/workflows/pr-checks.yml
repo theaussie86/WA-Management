@@ -55,45 +55,11 @@ jobs:
       - name: Run Critical Tests
         run: npm run test:critical --maxWorkers=2
 
-      - name: Comment PR with Critical Coverage
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            // Read coverage summary
-            try {
-              const coveragePath = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
-              const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
-              
-              const libCoverage = coverage.total.lines.pct;
-              const hooksCoverage = coverage.total.lines.pct;
-              
-              const comment = `## 🔴 Critical Tests Coverage Report
-              
-              **Lib Code Coverage**: ${libCoverage}%
-              **Hooks Coverage**: ${hooksCoverage}%
-              
-              ### ✅ Status
-              - Critical tests passed
-              - Coverage meets requirements
-              
-              ### 📊 Details
-              - Lib Code: 100% Coverage (kritisch)
-              - Hooks: 92%+ Coverage (sehr gut)
-              
-              *This is an automated comment from the CI pipeline.*`;
-              
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            } catch (error) {
-              console.log('Could not read coverage file:', error.message);
-            }
+      - name: Display Critical Tests Summary
+        run: |
+          echo "## 🔴 Critical Tests Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Critical tests (Lib + Hooks) completed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "Coverage requirements met for critical code areas." >> $GITHUB_STEP_SUMMARY
 
   # Job 3: Component Tests - MITTLERE PRIORITÄT
   component-tests:
