@@ -103,9 +103,25 @@ global.testDbUtils = {
   reset: jest.fn(),
 };
 
-// Mock n8n webhook utilities
-global.n8nMocks = {
-  webhook: jest.fn(),
-  workflow: jest.fn(),
-  execution: jest.fn(),
+// Mock AI Services for integration tests
+global.aiServiceMocks = {
+  openai: jest.fn(),
+  claude: jest.fn(),
+  contentGeneration: jest.fn(),
+  trendResearch: jest.fn(),
+  imageGeneration: jest.fn(),
+};
+
+// Mock external APIs
+global.externalApiMocks = {
+  linkedin: jest.fn(),
+  googleTrends: jest.fn(),
+  newsApi: jest.fn(),
+};
+
+// Setup integration test utilities
+global.integrationTestUtils = {
+  setup: jest.fn(),
+  cleanup: jest.fn(),
+  runFullTest: jest.fn(),
 };
