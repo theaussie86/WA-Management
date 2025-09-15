@@ -1,10 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
+import { TEST_CONFIG } from "../../lib/test-config";
 
 // Test database configuration
 export const TEST_DB_CONFIG = {
-  url: process.env.TEST_SUPABASE_URL || 'http://localhost:54321',
-  anonKey: process.env.TEST_SUPABASE_ANON_KEY || 'test-anon-key',
-  serviceRoleKey: process.env.TEST_SUPABASE_SERVICE_ROLE_KEY || 'test-service-role-key',
+  url: TEST_CONFIG.supabase.url,
+  anonKey: TEST_CONFIG.supabase.anonKey,
+  serviceRoleKey: TEST_CONFIG.supabase.serviceRoleKey,
 };
 
 // Create test database client
@@ -18,36 +19,36 @@ export class DatabaseTestUtils {
 
   async seedCampaigns(campaigns: any[]) {
     const { data, error } = await this.client
-      .from('campaigns')
+      .from("campaigns")
       .insert(campaigns);
-    
+
     if (error) throw error;
     return data;
   }
 
   async seedContentItems(contentItems: any[]) {
     const { data, error } = await this.client
-      .from('content_items')
+      .from("content_items")
       .insert(contentItems);
-    
+
     if (error) throw error;
     return data;
   }
 
   async seedContentVersions(contentVersions: any[]) {
     const { data, error } = await this.client
-      .from('content_versions')
+      .from("content_versions")
       .insert(contentVersions);
-    
+
     if (error) throw error;
     return data;
   }
 
   async seedWorkflowExecutions(executions: any[]) {
     const { data, error } = await this.client
-      .from('workflow_executions')
+      .from("workflow_executions")
       .insert(executions);
-    
+
     if (error) throw error;
     return data;
   }
@@ -97,19 +98,19 @@ afterAll(async () => {
 });
 
 // Tests for database utilities
-describe('DatabaseTestUtils', () => {
-  it('should create test client', () => {
+describe("DatabaseTestUtils", () => {
+  it("should create test client", () => {
     const client = createTestClient();
     expect(client).toBeDefined();
   });
 
-  it('should have test database configuration', () => {
+  it("should have test database configuration", () => {
     expect(TEST_DB_CONFIG.url).toBeDefined();
     expect(TEST_DB_CONFIG.anonKey).toBeDefined();
     expect(TEST_DB_CONFIG.serviceRoleKey).toBeDefined();
   });
 
-  it('should have database test utilities', () => {
+  it("should have database test utilities", () => {
     expect(testDbUtils).toBeDefined();
     expect(testDbUtils.seedCampaigns).toBeDefined();
     expect(testDbUtils.cleanupAll).toBeDefined();
