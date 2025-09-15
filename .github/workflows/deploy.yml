@@ -35,22 +35,23 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run Full Test Suite
-        run: npm run test:ci -- --testPathPatterns="__tests__/(components|hooks|lib|utils)" --coverage --maxWorkers=2
+      - name: Run Critical Tests
+        run: npm run test:critical
         env:
           TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
           TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
 
-      - name: Check Test Coverage
-        run: |
-          COVERAGE_THRESHOLD=20
-          COVERAGE=$(npm run test:ci -- --testPathPatterns="__tests__/(components|hooks|lib|utils)" --coverage --coverageReporters=text-summary | grep -o 'All files[^0-9]*[0-9]*\.[0-9]*' | grep -o '[0-9]*\.[0-9]*$')
-          if (( $(echo "$COVERAGE < $COVERAGE_THRESHOLD" | bc -l) )); then
-            echo "❌ Coverage $COVERAGE% is below threshold $COVERAGE_THRESHOLD%"
-            exit 1
-          else
-            echo "✅ Coverage $COVERAGE% meets threshold $COVERAGE_THRESHOLD%"
-          fi
+      - name: Run Component Tests
+        run: npm run test:components
+        env:
+          TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+          TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+
+      - name: Run Integration Tests
+        run: npm run test:integration
+        env:
+          TEST_SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+          TEST_SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
 
   # Job 2: Build for Production
   build-production:

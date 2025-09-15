@@ -146,7 +146,7 @@ jobs:
           "
 
       - name: Run Integration Tests
-        run: npm run test:ci -- --testPathPatterns="__tests__/integration" --coverage
+        run: npm run test:integration
         env:
           TEST_SUPABASE_URL: "http://localhost:54321"
           TEST_SUPABASE_ANON_KEY: "test-anon-key"
