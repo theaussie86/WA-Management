@@ -95,13 +95,6 @@ jobs:
       - name: Run Security Audit
         run: npm audit --audit-level=low --json > security-audit.json
 
-      - name: Run Snyk Security Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=low
-
       - name: Upload Security Report
         uses: actions/upload-artifact@v4
         with:

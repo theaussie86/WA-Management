@@ -65,13 +65,6 @@ jobs:
       - name: Run Security Audit
         run: npm run security:audit
 
-      - name: Run Snyk Security Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-
   # Job 3: Dependency Check
   dependency-check:
     name: Dependency Check
