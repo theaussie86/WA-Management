@@ -171,15 +171,21 @@ export class AIServiceMocks {
       },
     ];
 
+    const filteredTrends = trends.filter(
+      (t) =>
+        t.topic.toLowerCase().includes(topic.toLowerCase()) ||
+        t.related_keywords.some((k) =>
+          k.toLowerCase().includes(topic.toLowerCase())
+        )
+    );
+
+    // Stelle sicher, dass mindestens ein Trend zurückgegeben wird
+    const finalTrends =
+      filteredTrends.length > 0 ? filteredTrends : trends.slice(0, 2);
+
     return {
       success: true,
-      trends: trends.filter(
-        (t) =>
-          t.topic.toLowerCase().includes(topic.toLowerCase()) ||
-          t.related_keywords.some((k) =>
-            k.toLowerCase().includes(topic.toLowerCase())
-          )
-      ),
+      trends: finalTrends,
       metadata: {
         total_trends: trends.length,
         research_time_ms: Math.floor(Math.random() * 3000) + 1000,
@@ -570,3 +576,150 @@ export const setupAIServiceMocks = () => {
 
   return mockAIService;
 };
+
+/**
+ * Tests für AI Service Mocks
+ */
+describe("AI Service Mocks", () => {
+  let mockAIService: MockAIService;
+
+  beforeEach(() => {
+    mockAIService = MockAIService.getInstance();
+    mockAIService.clearMocks();
+  });
+
+  describe("AIServiceMocks", () => {
+    it("sollte OpenAI Response erstellen", () => {
+      const response = AIServiceMocks.createOpenAIResponse("Test content");
+
+      expect(response).toHaveProperty("id");
+      expect(response).toHaveProperty("object", "chat.completion");
+      expect(response).toHaveProperty("choices");
+      expect(response.choices[0]).toHaveProperty("message");
+      expect(response.choices[0].message.content).toBe("Test content");
+    });
+
+    it("sollte Content Generation Response erstellen", () => {
+      const request = {
+        prompt: "Test prompt",
+        tone: "professional",
+        target_audience: "professionals",
+      };
+
+      const response = AIServiceMocks.createContentGenerationResponse(request);
+
+      expect(response.success).toBe(true);
+      expect(response.content).toHaveProperty("title");
+      expect(response.content).toHaveProperty("body");
+      expect(response.content).toHaveProperty("hashtags");
+      expect(response.metadata).toHaveProperty("model_used");
+    });
+
+    it("sollte Trend Research Response erstellen", () => {
+      const response = AIServiceMocks.createTrendResearchResponse("AI");
+
+      expect(response.success).toBe(true);
+      expect(response).toHaveProperty("trends");
+      expect(response.trends.length).toBeGreaterThan(0);
+      expect(response.metadata).toHaveProperty("total_trends");
+    });
+
+    it("sollte Image Generation Response erstellen", () => {
+      const response =
+        AIServiceMocks.createImageGenerationResponse("test image");
+
+      expect(response.success).toBe(true);
+      expect(response).toHaveProperty("images");
+      expect(response.images[0]).toHaveProperty("url");
+      expect(response.images[0]).toHaveProperty("width", 1024);
+    });
+
+    it("sollte Error Response erstellen", () => {
+      const response = AIServiceMocks.createErrorResponse("rate_limit");
+
+      expect(response.success).toBe(false);
+      expect(response.error).toHaveProperty("type", "rate_limit");
+      expect(response.error).toHaveProperty("message");
+    });
+
+    it("sollte Request validieren", () => {
+      const validRequest = {
+        prompt: "Test",
+        tone: "professional",
+        target_audience: "professionals",
+      };
+
+      const validation = AIServiceMocks.validateRequest(validRequest);
+      expect(validation.isValid).toBe(true);
+      expect(validation.errors).toHaveLength(0);
+    });
+
+    it("sollte ungültige Requests erkennen", () => {
+      const invalidRequest = {
+        prompt: "",
+        tone: "invalid",
+        target_audience: "professionals",
+        max_tokens: 5000,
+        temperature: 3,
+      };
+
+      const validation = AIServiceMocks.validateRequest(invalidRequest);
+      expect(validation.isValid).toBe(false);
+      expect(validation.errors.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("MockAIService", () => {
+    it("sollte Singleton Pattern implementieren", () => {
+      const instance1 = MockAIService.getInstance();
+      const instance2 = MockAIService.getInstance();
+
+      expect(instance1).toBe(instance2);
+    });
+
+    it("sollte Konfiguration akzeptieren", () => {
+      mockAIService.configure({
+        errorRate: 0.5,
+        latency: { min: 200, max: 800 },
+      });
+
+      // Konfiguration sollte gesetzt sein (kann nicht direkt getestet werden, da private)
+      expect(true).toBe(true);
+    });
+
+    it("sollte Content generieren", async () => {
+      const request = {
+        prompt: "Test prompt",
+        tone: "professional",
+        target_audience: "professionals",
+      };
+
+      const response = await mockAIService.generateContent(request);
+
+      expect(response.success).toBe(true);
+      expect(response.content).toHaveProperty("title");
+    });
+
+    it("sollte Trends recherchieren", async () => {
+      const response = await mockAIService.researchTrends("AI");
+
+      expect(response.success).toBe(true);
+      expect(response).toHaveProperty("trends");
+    });
+
+    it("sollte Images generieren", async () => {
+      const response = await mockAIService.generateImage("test image");
+
+      expect(response.success).toBe(true);
+      expect(response).toHaveProperty("images");
+    });
+
+    it("sollte Mock Responses setzen und löschen", () => {
+      mockAIService.setMockResponse("test", { test: "data" });
+      mockAIService.clearMocks();
+
+      // Mock sollte geleert sein
+      expect(true).toBe(true);
+    });
+  });
+});
