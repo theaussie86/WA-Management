@@ -64,7 +64,7 @@ jobs:
         run: npm ci
 
       - name: Run Unit Tests
-        run: npm run test:ci -- --testPathPattern="__tests__/(components|hooks|lib|utils)" --coverage
+        run: npm run test:ci -- --testPathPatterns="__tests__/(components|hooks|lib|utils)" --coverage
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -121,7 +121,7 @@ jobs:
           "
 
       - name: Run Integration Tests
-        run: npm run test:ci -- --testPathPattern="__tests__/integration" --coverage
+        run: npm run test:ci -- --testPathPatterns="__tests__/integration" --coverage
         env:
           TEST_SUPABASE_URL: "http://localhost:54321"
           TEST_SUPABASE_ANON_KEY: "test-anon-key"
@@ -209,7 +209,7 @@ jobs:
         run: npm ci
 
       - name: Run Performance Tests
-        run: npm run test:ci -- --testPathPattern="__tests__/integration.*performance" --testTimeout=60000
+        run: npm run test:ci -- --testPathPatterns="__tests__/integration.*performance" --testTimeout=60000
 
   # Job 7: E2E Tests (if applicable)
   e2e-tests:
@@ -237,7 +237,7 @@ jobs:
           sleep 30
 
       - name: Run E2E Tests
-        run: npm run test:ci -- --testPathPattern="__tests__/e2e"
+        run: npm run test:ci -- --testPathPatterns="__tests__/e2e"
 
   # Job 8: Test Summary
   test-summary:

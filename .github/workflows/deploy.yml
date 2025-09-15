@@ -87,45 +87,12 @@ jobs:
             package.json
             package-lock.json
 
-  # Job 3: Deploy to Staging
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: build-production
-    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
-    environment: staging
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: production-build
-
-      - name: Deploy to Vercel (Staging)
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "--prod"
-          working-directory: ./
-
-      - name: Run Post-deployment Tests
-        run: |
-          # Wait for deployment to be ready
-          sleep 60
-
-          # Run smoke tests against staging
-          npm run test:ci -- --testPathPattern="__tests__/smoke" --testEnvironment=node
-
-  # Job 4: Deploy to Production
+  # Job 3: Deploy to Production
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: [build-production, deploy-staging]
-    if: github.ref == 'refs/heads/main' && github.event.inputs.environment != 'staging'
+    needs: build-production
+    if: github.ref == 'refs/heads/main'
     environment: production
     steps:
       - name: Checkout Code
@@ -163,7 +130,7 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  # Job 5: Rollback (if needed)
+  # Job 4: Rollback (if needed)
   rollback:
     name: Rollback Deployment
     runs-on: ubuntu-latest
@@ -185,11 +152,11 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  # Job 6: Cleanup
+  # Job 5: Cleanup
   cleanup:
     name: Cleanup
     runs-on: ubuntu-latest
-    needs: [deploy-staging, deploy-production]
+    needs: deploy-production
     if: always()
     steps:
       - name: Cleanup Artifacts

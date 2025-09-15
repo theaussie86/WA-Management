@@ -58,7 +58,7 @@ jobs:
         run: npm ci
 
       - name: Run Performance Tests
-        run: npm run test:ci -- --testPathPattern="__tests__/integration.*performance" --testTimeout=120000
+        run: npm run test:ci -- --testPathPatterns="__tests__/integration.*performance" --testTimeout=120000
 
       - name: Generate Performance Report
         run: |
