@@ -167,25 +167,31 @@ export const mockDatabaseOperations = {
 
 // Test data seeding utilities
 export const seedTestData = {
-  campaigns: (count = 3) => 
-    Array.from({ length: count }, (_, i) => createMockCampaign({ 
-      id: `campaign-${i + 1}`,
-      name: `Test Campaign ${i + 1}` 
-    })),
-  
-  contentItems: (campaignId, count = 5) =>
-    Array.from({ length: count }, (_, i) => createMockContentItem({
-      id: `content-${i + 1}`,
-      campaign_id: campaignId,
-      title: `Test Content ${i + 1}`,
-    })),
-  
-  contentVersions: (contentItemId, count = 2) =>
-    Array.from({ length: count }, (_, i) => createMockContentVersion({
-      id: `version-${i + 1}`,
-      content_item_id: contentItemId,
-      version_number: i + 1,
-    })),
+  campaigns: (count = 3) =>
+    Array.from({ length: count }, (_, i) =>
+      createMockCampaign({
+        id: `campaign-${i + 1}`,
+        name: `Test Campaign ${i + 1}`,
+      })
+    ),
+
+  contentItems: (campaignId: string, count = 5) =>
+    Array.from({ length: count }, (_, i) =>
+      createMockContentItem({
+        id: `content-${i + 1}`,
+        campaign_id: campaignId,
+        title: `Test Content ${i + 1}`,
+      })
+    ),
+
+  contentVersions: (contentItemId: string, count = 2) =>
+    Array.from({ length: count }, (_, i) =>
+      createMockContentVersion({
+        id: `version-${i + 1}`,
+        content_item_id: contentItemId,
+        version_number: i + 1,
+      })
+    ),
 };
 
 // Cleanup utilities

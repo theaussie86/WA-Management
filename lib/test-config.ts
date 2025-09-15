@@ -253,7 +253,7 @@ export const validateTestEnvironment = () => {
   }
 
   // Set test environment variables
-  process.env.NODE_ENV = "test";
+  // process.env.NODE_ENV = "test"; // Read-only property
   process.env.NEXT_PUBLIC_SUPABASE_URL = TEST_CONFIG.supabase.url;
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY =
     TEST_CONFIG.supabase.anonKey;
